@@ -1,61 +1,84 @@
 package coding.mentor.be5;
 
+import java.util.Date; 
 import java.util.ArrayList;
 
 public class Course {
-	String name;
-	String beginDate;
-	String endDate;
-	double fee;
-	Mentor[] mentors;
-	ArrayList<User> students;
-	boolean isRegistered;
+	private String name;
+	private Date begin;
+	private Date end;
+	private double fee;
+	private ArrayList<Mentor> mentors;
 	
-	public Course(String name, String beginDate, String endDate, Mentor[] mentors, boolean isRegistered, double fee) {
+	public Course(String name, Date beginDate, Date endDate, ArrayList<Mentor> mentors, boolean isRegistered, double fee) {
 		this.name = name;
-		this.beginDate = beginDate;
-		this.endDate = endDate;
+		this.begin = beginDate;
+		this.end = endDate;
 		this.mentors = mentors;
-		this.isRegistered = isRegistered;
 		this.fee = fee;
-		this.students = new ArrayList<User>();
+	}
+	
+
+	public String getName() {
+		return name;
 	}
 
-	public void showCourse() {
-		System.out.println("-------------------------------------");
-		System.out.println(this.name);
-		String mentors = "Mentors: " + this.mentors[0].name;
-		for (int index = 1; index < this.mentors.length; index++) {
-			mentors += " - " + this.mentors[index].name;
-		}
-		System.out.println(mentors);
-		System.out.println("Begin date: " + this.beginDate);
-		System.out.println("End date: " + this.endDate);
-		System.out.println("Fee: " + this.fee);
-		System.out.println("1. Register");
-		System.out.println("2. No");
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+
+	public Date getBegin() {
+		return begin;
+	}
+
+
+
+	public void setBegin(Date begin) {
+		this.begin = begin;
+	}
+
+
+
+	public Date getEnd() {
+		return end;
+	}
+
+
+
+	public void setEnd(Date end) {
+		this.end = end;
+	}
+
+
+
+	public double getFee() {
+		return fee;
+	}
+
+
+
+	public void setFee(double fee) {
+		this.fee = fee;
+	}
+
+
+
+	public ArrayList<Mentor> getMentors() {
+		return mentors;
+	}
+
+
+
+	public void setMentors(ArrayList<Mentor> mentors) {
+		this.mentors = mentors;
 	}
 	
-	public void registerCourse(User student) {
-		if (this.isRegistered) {
-			System.out.println("-------------------------------------");
-			System.out.println("You have registered for course: " + this.name + " before");
-			return;
-		}
-		this.students.add(student);
-		System.out.println("-------------------------------------");
-		System.out.println("You successfully registered for course: " + this.name);
-		String mentors = "Mentors: " + this.mentors[0].name;
-		for (int index = 1; index < this.mentors.length; index++) {
-			mentors += " - " + this.mentors[index].name;
-		}
-		System.out.println(mentors);
-		System.out.println("Begin date: " + this.beginDate);
-		System.out.println("End date: " + this.endDate);
-		System.out.println("Fee: " + this.fee);
-	}
 	
-	public Mentor[] findCourseMentors() {
-		return this.mentors;
+	public ArrayList<Mentor> findCourseMentors() {
+		return this.getMentors();
 	}
 }

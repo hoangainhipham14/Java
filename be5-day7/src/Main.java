@@ -12,48 +12,40 @@ public class Main {
 	static final int REGISTER_COURSE = 1;
 	static final int VIEW_MENTORS = 3;
 	
+	// TODO: Missing try catch
+	
 	public static void main(String[] args) {
-		Scanner input = new Scanner(System.in);
+		Database.initDB();
 		CourseService courseService = new CourseService();
-		courseService.initCourseList();
 		UserService userService = new UserService();
 		
-		String ID;
-		String password;
-		String name;
-		User currentUser = null; 
-		int selectedCommand;
+		Integer selectedCommand;
+		Integer selectedCourseNumber;
 		int loginFailCount = 0;
-		int selectedCourseNumber;
+		User currentUser = null; 
 		Course selectedCourse;
 		boolean quitProgram = false;
 
+		Scanner input = new Scanner(System.in);
+		
 		do {
-			while (currentUser == null && !quitProgram) {
+			while (currentUser == null && !quitProgram && loginFailCount < 4) {
 				showLoginMenu();
-				System.out.println("Please select a command");
-				selectedCommand = input.nextInt();
-				input.nextLine();
+				
+				do {
+					selectedCommand = selectCommand(input);
+				} while (selectedCommand == null);
+				
 				switch (selectedCommand) {
 				case REGISTER_USER: {
-					System.out.println("-------------------------------------");
-					System.out.println("Please enter new ID");
-					ID = input.nextLine();
-					System.out.println("Please enter new password");
-					password = input.nextLine();
-					System.out.println("Please enter your name");
-					name = input.nextLine();
-					userService.register(ID, password, name);
+					registerUser(input);
 					break;
 				}
 				case LOG_IN: {
-					System.out.println("-------------------------------------");
-					System.out.println("Please enter ID");
-					ID = input.nextLine();
-					System.out.println("Please enter password");
-					password = input.nextLine();
-					currentUser = userService.login(ID, password, loginFailCount);
-					loginFailCount += 1;
+					currentUser = loginUser(input);
+					if (currentUser == null) {
+						loginFailCount += 1;
+					}
 					break;
 				}
 				case QUIT: {
@@ -62,23 +54,25 @@ public class Main {
 				}
 				}
 				
-				if (loginFailCount > 4) {
-					break;
-				}
-				
 			};
 			
-		    if (quitProgram || loginFailCount > 4) {
+			if (loginFailCount >= 4) {
+				System.out.println("Your account is locked");
+				break;
+			}
+			
+		    if (quitProgram) {
 		        break;
 		    }
 		    
 		    courseService.showCourseList();
-			System.out.println("Please select a course");
-			selectedCourseNumber = input.nextInt();
-			input.nextLine();
+			do {
+				selectedCourseNumber = selectCourse(input);
+			} while (selectedCourseNumber == null);
+			
 			switch (selectedCourseNumber) {
 			case SHOW_YOUR_COURSES: {
-				courseService.showYourCourses(currentUser);
+				userService.showYourCourses(currentUser);
 				break;
 			}
 			case LOG_OUT: {
@@ -87,20 +81,19 @@ public class Main {
 			}
 			default: 
 				selectedCourse = courseService.findCourse(selectedCourseNumber);
-				selectedCourse.showCourse();
-				System.out.println("Please select a command");
-				selectedCommand = input.nextInt();
-				input.nextLine();
+				courseService.showCourseDetails(selectedCourse);
+				
+				do {
+					selectedCommand = selectCommand(input);
+				} while (selectedCommand == null);
+				
 				switch (selectedCommand) {
 				case REGISTER_COURSE: {
-					selectedCourse.registerCourse(currentUser);
+					courseService.registerCourse(selectedCourse, currentUser);
 					break;
 				}
 				case VIEW_MENTORS: {
-					Mentor[] mentors = selectedCourse.findCourseMentors();
-					for (int index = 0; index < mentors.length; index++) {
-						mentors[index].showMentor();
-					}
+					courseService.showMentorDetails(selectedCourse);
 					break;
 				}
 				}
@@ -117,4 +110,61 @@ public class Main {
 		System.out.println("-------------------------------------");
 	}
 	
+	public static void registerUser(Scanner input) {
+		String ID;
+		String password;
+		String name;
+		UserService userService = new UserService();
+		
+		System.out.println("-------------------------------------");
+		System.out.println("Please enter new ID");
+		ID = input.nextLine();
+		System.out.println("Please enter new password");
+		password = input.nextLine();
+		System.out.println("Please enter your name");
+		name = input.nextLine();
+		userService.registerNewUser(ID, password, name);
+	}
+	
+	public static User loginUser(Scanner input) {
+		String ID;
+		String password;
+		User currentUser;
+		UserService userService = new UserService();
+		
+		System.out.println("-------------------------------------");
+		System.out.println("Please enter ID");
+		ID = input.nextLine();
+		System.out.println("Please enter password");
+		password = input.nextLine();
+		currentUser = userService.loginUser(ID, password);
+		return currentUser;
+	}
+	
+	public static Integer selectCommand(Scanner input) {
+		Integer selectedCommand;
+		try {
+			System.out.println("Please select a command");
+			selectedCommand = input.nextInt();
+			input.nextLine();
+		} catch (Exception e) {
+			System.out.println("Please input a number");
+			return null;
+		}
+		return selectedCommand;
+	}
+	
+	public static Integer selectCourse(Scanner input) {
+		Integer selectedCourseNumber;
+		try {
+			System.out.println("Please select a course");
+			selectedCourseNumber = input.nextInt();
+			input.nextLine();
+		} catch (Exception e) {
+			System.out.println("Please input a number");
+			return null;
+		}
+
+		return selectedCourseNumber;
+	}
 }

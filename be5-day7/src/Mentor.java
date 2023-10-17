@@ -1,20 +1,39 @@
 package coding.mentor.be5;
 
 public class Mentor {
-	String name;
-    String email;
-    String className;
+	private int ID;
+	private String name;
+    private String email;
     
-	public Mentor(String name, String email, String className) {
+	public Mentor(int ID, String name, String email, String className) {
 		super();
+		this.ID = ID;
 		this.name = name;
 		this.email = email;
-		this.className = className;
+	}
+    
+	public int getID() {
+		return ID;
+	}
+
+	public void setID(int id) {
+		ID = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
-	public void showMentor() {
-		System.out.println("Name: " + this.name);
-		System.out.println("Email: " + this.email);
-		System.out.println("Class name: " + this.className);
-	}
 }
