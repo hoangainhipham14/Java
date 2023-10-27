@@ -9,6 +9,7 @@ public class findSquareInteger {
 		int numTestCases = input.nextInt();
 		int[] numSquareIntegers = new int[numTestCases];
 		
+		// O(n^2)
 		for (int i = 0; i < numTestCases; i++) {
 			int start = input.nextInt();
 			int end = input.nextInt();
@@ -25,6 +26,7 @@ public class findSquareInteger {
 	
 	public static ArrayList<Integer> findSquareIntegers(int start, int end) {
 		ArrayList<Integer> squareIntegers = new ArrayList<Integer>();
+
 		for (int i = start; i < end + 1; i++) {
 			int squareRoot = (int) Math.sqrt(i);
 			if (squareRoot == Math.sqrt(i)) {

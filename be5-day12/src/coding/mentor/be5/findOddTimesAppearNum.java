@@ -12,6 +12,8 @@ public class findOddTimesAppearNum {
 		
 		int current = arr[0];
 		int count = 0;
+		
+		// O(n)
 		for (int num: arr) {
 			if (current == num) {
 				count += 1;
@@ -25,6 +27,8 @@ public class findOddTimesAppearNum {
 		}
 		
 		System.out.println("Numbers that appear odd times: ");
+		
+		// O(n)
 		for (int num: res) {
 			System.out.print(num + " ");
 		}
