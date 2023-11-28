@@ -44,6 +44,105 @@ JOIN screening sc ON sc.id = b.screening_id
 JOIN film f ON f.id = s.film_id
 WHERE f.name = "Tom&Jerry";
 
+-- 1. Show film which dont have any screening
+SELECT DISTINCT f.name
+FROM film f
+LEFT JOIN screening s ON f.id = s.film_id
+WHERE s.id IS NULL;
 
+-- 2. Who book more than 1 seat in 1 booking
+SELECT DISTINCT c.name
+FROM reserved_seat rs
+JOIN booking b ON rs.booking_id = b.id
+JOIN customer c ON c.id = b.customer_id
+GROUP BY b.id
+HAVING COUNT(rs.seat_id) > 1;
+
+-- 3. Show room show more than 2 film in one day
+SELECT r.name
+FROM screening s
+JOIN room r ON r.id = s.room_id
+GROUP BY s.room_id, DATE(s.start_time)
+HAVING COUNT(s.film_id) > 2;
+
+-- which room shows the least film
+WITH film_count AS (
+	SELECT s.room_id, r.name as room_name, COUNT(DISTINCT s.film_id) as number_of_films
+	FROM screening s
+	JOIN film f ON f.id = s.film_id
+	JOIN room r ON r.id = s.room_id
+	GROUP BY s.room_id
+)
+SELECT *
+FROM film_count fc
+WHERE fc.number_of_films = (SELECT MIN(number_of_films) FROM film_count);
+
+-- which film doesn't have any booking
+SELECT f.name
+FROM film f
+WHERE f.id NOT IN (
+	SELECT DISTINCT s.film_id
+    FROM booking b 
+    JOIN screening s ON s.id = b.screening_id
+);
+
+-- 6. Which film was shown in the biggest number of room?
+WITH room_count AS (
+	SELECT f.name as film_name, COUNT(DISTINCT s.room_id) as number_of_rooms
+	FROM screening s
+	JOIN film f ON f.id = s.film_id
+	GROUP BY f.id
+)
+SELECT film_name
+FROM room_count rc
+WHERE rc.number_of_rooms = (SELECT MAX(number_of_rooms) FROM room_count);
+
+/* 7. Show number of film  that show in every day of week and order descending */
+SELECT DATE(start_time) as screening_date, COUNT(DISTINCT film_id) as number_of_films
+FROM screening
+GROUP BY screening_date
+ORDER BY number_of_films;
+
+-- show total length of each film that showed in 28/05/2022
+SELECT s.film_id, SUM(f.length)
+FROM screening s
+JOIN film f ON f.id = s.film_id
+WHERE DATE(s.start_time) = "2022-05-28"
+GROUP BY s.film_id;
+
+-- which room has the least number of seat
+WITH seat_count AS (
+	SELECT r.name, COUNT(s.id) as number_of_seats
+	FROM room r
+	LEFT JOIN seat s ON s.room_id = r.id
+	GROUP BY r.id
+)
+SELECT sc.name, sc.number_of_seats
+FROM seat_count sc
+WHERE sc.number_of_seats = (SELECT MIN(number_of_seats) FROM seat_count);
+
+-- room with number of seats which is bigger than the average number of seats of all rooms
+WITH seat_count AS (
+	SELECT r.name, COUNT(s.id) as number_of_seats
+	FROM room r
+	LEFT JOIN seat s ON s.room_id = r.id
+	GROUP BY r.id
+)
+SELECT sc.name, sc.number_of_seats
+FROM seat_count sc
+WHERE sc.number_of_seats > (SELECT AVG(number_of_seats) FROM seat_count);
+
+-- 12. Are there any other available seats that Dung can book for screening 1?
+SELECT s.id, s.seat_row, s.seat_number, s.seat_type, r.name
+FROM screening sc
+JOIN room r ON r.id = sc.room_id
+JOIN seat s ON s.room_id = r.id
+WHERE sc.id = 1 AND s.id NOT IN (
+	SELECT rs.seat_id
+    FROM reserved_seat rs
+    JOIN booking b ON b.id = rs.booking_id
+    JOIN customer c ON c.id = b.customer_id
+    WHERE b.screening_id = 1
+)
 
 
