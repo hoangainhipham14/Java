@@ -103,14 +103,25 @@ FROM screening
 GROUP BY screening_date
 ORDER BY number_of_films;
 
--- show total length of each film that showed in 28/05/2022
+-- 8. Show total length of each film that showed in 28/05/2022
 SELECT s.film_id, SUM(f.length)
 FROM screening s
 JOIN film f ON f.id = s.film_id
 WHERE DATE(s.start_time) = "2022-05-28"
 GROUP BY s.film_id;
 
--- which room has the least number of seat
+-- 9. What film has showing time above and below average show time of all film
+WITH screening_time AS (
+	SELECT f.id, f.name as film_name, SUM(f.length) as total_screening_time
+    FROM screening s 
+    JOIN film f ON s.film_id = f.id
+	GROUP BY f.id
+)
+SELECT st.id, st.film_name, st.total_screening_time
+FROM screening_time st
+HAVING st.total_screening_time != (SELECT AVG(total_screening_time) FROM screening_time);
+    
+-- 10. Which room has the least number of seat
 WITH seat_count AS (
 	SELECT r.name, COUNT(s.id) as number_of_seats
 	FROM room r
@@ -121,7 +132,7 @@ SELECT sc.name, sc.number_of_seats
 FROM seat_count sc
 WHERE sc.number_of_seats = (SELECT MIN(number_of_seats) FROM seat_count);
 
--- room with number of seats which is bigger than the average number of seats of all rooms
+-- 11. Room with number of seats which is bigger than the average number of seats of all rooms
 WITH seat_count AS (
 	SELECT r.name, COUNT(s.id) as number_of_seats
 	FROM room r
@@ -143,6 +154,37 @@ WHERE sc.id = 1 AND s.id NOT IN (
     JOIN booking b ON b.id = rs.booking_id
     JOIN customer c ON c.id = b.customer_id
     WHERE b.screening_id = 1
-)
+);
 
+-- 13. Show films with total screening > 10 and order by total screening
+SELECT f.id, f.name, SUM(f.length)
+FROM film f
+JOIN screening s ON s.film_id = f.id
+GROUP BY s.film_id
+HAVING SUM(f.length) > 10;
+
+-- 14. TOP 3 days in a week based on the number of bookings
+SELECT DAYNAME(s.start_time) AS day_of_week, COUNT(b.id) AS total_booking 
+FROM booking b
+JOIN screening s ON s.id = b.screening_id
+GROUP BY DAYNAME(s.start_time)
+ORDER BY total_booking DESC
+LIMIT 3;
+
+-- 15. Calculate booking rate over screening of each film order by rates.
+WITH screening_count AS (
+	SELECT f.name as film_name, COUNT(s.id) as total_screening
+	FROM screening s
+	JOIN film f ON f.id = s.film_id
+	GROUP BY f.id
+), booking_count AS (
+	SELECT f.name as film_name, COUNT(b.id) as total_booking
+    FROM booking b
+    JOIN screening s ON s.id = b.screening_id
+    JOIN film f ON f.id = s.film_id
+    GROUP BY f.id
+)
+SELECT sc.film_name, (bc.total_booking/sc.total_screening) as rate
+FROM screening_count sc
+LEFT JOIN booking_count bc ON sc.film_name = bc.film_name;
 
