@@ -30,29 +30,7 @@ public class Main {
 		
 		do {
 			while (currentUser == null && !quitProgram && loginFailCount < 4) {
-				showLoginMenu();
 				
-				do {
-					selectedCommand = selectCommand(input);
-				} while (selectedCommand == null);
-				
-				switch (selectedCommand) {
-				case REGISTER_USER: {
-					registerUser(input);
-					break;
-				}
-				case LOG_IN: {
-					currentUser = loginUser(input);
-					if (currentUser == null) {
-						loginFailCount += 1;
-					}
-					break;
-				}
-				case QUIT: {
-					quitProgram = true;
-					break;
-				}
-				}
 				
 			};
 			
@@ -166,5 +144,35 @@ public class Main {
 		}
 
 		return selectedCourseNumber;
+	}
+	
+	public static void doLoginOrRegister() {
+		
+		Integer selectedCommand;
+		Scanner input = new Scanner(System.in);
+		
+		showLoginMenu();
+		
+		do {
+			selectedCommand = selectCommand(input);
+		} while (selectedCommand == null);
+		
+		switch (selectedCommand) {
+		case REGISTER_USER: {
+			registerUser(input);
+			break;
+		}
+		case LOG_IN: {
+			currentUser = loginUser(input);
+			if (currentUser == null) {
+				loginFailCount += 1;
+			}
+			break;
+		}
+		case QUIT: {
+			quitProgram = true;
+			break;
+		}
+		}
 	}
 }
